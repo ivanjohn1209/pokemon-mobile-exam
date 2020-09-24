@@ -1,8 +1,5 @@
-import React from "react";
 import { Platform } from "react-native";
-
 import { createStackNavigator } from "react-navigation-stack";
-
 import PokemonListsScreen from "../screens/PokemonListsScreen";
 import CreatePokemonScreen from "../screens/CreatePokemonScreen";
 import PokemonDetailsScreen from "../screens/PokemonDetailsScreen";
@@ -10,7 +7,6 @@ import UpdatePokemonScreen from "../screens/UpdatePokemonScreen";
 import LoginScreen from "../screens/LoginScreen"
 const config = Platform.select({
   web: { headerMode: "screen" },
-  // headerShown: false,
   default: {}
 });
 
@@ -21,8 +17,6 @@ const MainNavigator = createStackNavigator(
     CreatePokemon: CreatePokemonScreen,
     PokemonDetails:PokemonDetailsScreen,
     UpdatePokemon:UpdatePokemonScreen,
-
-
   },
   config
 );

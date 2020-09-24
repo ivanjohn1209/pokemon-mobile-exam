@@ -1,14 +1,13 @@
 import React, { Component } from 'react'
 import { View ,StyleSheet,Text,TouchableOpacity} from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 
 export default class Footer extends Component {
     constructor(props) {
         super(props);
-    
         this.state = {
           screen: '',
         }
-    
         this.changeScreen = this.changeScreen.bind(this)
       
       }
@@ -17,32 +16,38 @@ export default class Footer extends Component {
       }
     render() {
         return (
-           <View style={styles.Header}>
+           <View style={styles.Footer}>
                    <TouchableOpacity style={styles.card} onPress={() =>  this.changeScreen("CreatePokemon")}>
-                   <Text style={styles.HeaderText}>Add</Text>
+                   <Ionicons style={styles.FooterIcon} name="ios-add-circle-outline" color="black" />
+                   <Text style={styles.FooterText}>Add Pokemon</Text>
                    </TouchableOpacity>
            </View>
         )
     }
 }
 const styles = StyleSheet.create({
-   Header:{
+   Footer:{
        width:"100%",
-       height:50,
        flexDirection: 'row',
        alignItems:"center",
        justifyContent:"center",
-       backgroundColor:"#ef5350",
-      //  marginTop:0
+       padding:10
 
 
    },
-   HeaderText:{
+   FooterText:{
        fontWeight:"bold",
-       fontSize:20,
+       fontSize:10,
        color:"#333",
-       letterSpacing:1
-   }
+       letterSpacing:1,
+       textAlign:'center'
+   },
+   FooterIcon:{
+    fontWeight:"bold",
+    fontSize:40,
+    color:"#333",
+    textAlign:'center'
+}
 });
 
   

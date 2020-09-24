@@ -6,7 +6,8 @@ import {
   TextInput,
   TouchableHighlight,
   Image,
-  AsyncStorage 
+  AsyncStorage,
+  Alert,
 } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 import Header from "../component/Header";
@@ -18,11 +19,12 @@ export default class CreatePokemonScreen extends Component {
       PokemonName: "",
       PokemonType: "",
       PokemonAbility: "",
-      image:""
+      image: "",
     };
     this.handleChange = this.handleChange.bind(this);
     this.addPokemon = this.addPokemon.bind(this);
     this.getImageFile = this.getImageFile.bind(this);
+    this.isEmpty = this.isEmpty.bind(this);
   }
 
   handleChange(e, name) {
@@ -30,91 +32,119 @@ export default class CreatePokemonScreen extends Component {
       [name]: e,
     });
   }
-  addPokemon(){
-    let pokemonData  = {
-      name :this.state.PokemonName,
-      type: this.state.PokemonType,
-      ability: this.state.PokemonAbility,
-      image:this.state.image,
-      url:false
-    }
+  isEmpty(val) {
+    return val === undefined || val == null || val.length <= 0 || val == ""
+      ? true
+      : false;
+  }
+  addPokemon() {
+    if (
+      this.isEmpty(this.state.PokemonName) ||
+      this.isEmpty(this.state.PokemonType) ||
+      this.isEmpty(this.state.PokemonAbility) ||
+      this.isEmpty(this.state.image)
+    ) {
+      Alert.alert(
+        "Please!",
+        "Please fill up all fields",
+        [
+          {
+            text: "Cancel",
+            style: "cancel",
+          },
+          { text: "OK" },
+        ],
+        { cancelable: false }
+      );
+    } else {
+      let pokemonData = {
+        name: this.state.PokemonName,
+        type: this.state.PokemonType,
+        ability: this.state.PokemonAbility,
+        image: this.state.image,
+        url: false,
+      };
       var x = this.state.pokemonData;
       x.unshift(pokemonData);
-    this.addNewDataPokemon(x)
+      this.addNewDataPokemon(x);
+    }
   }
- async addNewDataPokemon(e) {
+  async addNewDataPokemon(e) {
     try {
-      await AsyncStorage.setItem('pokemonData',JSON.stringify(e));
+      await AsyncStorage.setItem("pokemonData", JSON.stringify(e));
     } catch (error) {
       // Error saving data
     }
     this.props.navigation.navigate("PokemonLists");
-  };
-  componentDidMount(){
+  }
+  componentDidMount() {
     const { navigation } = this.props;
-    navigation.addListener('willFocus', () => {
+    navigation.addListener("willFocus", () => {
       const { state } = this.props.navigation;
       this.setState({
-       pokemonData : state.params.pokemonData
-      })
+        pokemonData: state.params.pokemonData,
+      });
     });
   }
   getImageFile(callback) {
     this.setState({
-      image: callback
-    })
+      image: callback,
+    });
   }
   render() {
     return (
-      <ScrollView style={styles.containerView}>
-        <View style={styles.container}>
-          <ImagePicker getImageFile={this.getImageFile}/>
-          <View style={styles.inputContainer}>
-            <Image
-              style={styles.inputIcon}
-              source={require("../assets/Poke_Ball.png")}
+      <View style={styles.containerHeader}>
+        <Header />
+        <ScrollView style={styles.containerView}>
+          <View style={styles.container}>
+            <ImagePicker getImageFile={this.getImageFile} Status="Add" />
+            <View style={styles.inputContainer}>
+              <Image
+                style={styles.inputIcon}
+                source={require("../assets/Poke_Ball.png")}
               />
-            <TextInput
-              style={styles.inputs}
-              placeholder="Pokemon Name"
-              underlineColorAndroid="transparent"
-              onChangeText={(e) => this.handleChange(e, "PokemonName")}
-            />
-          </View>
+              <TextInput
+                style={styles.inputs}
+                placeholder="Pokemon Name"
+                underlineColorAndroid="transparent"
+                onChangeText={(e) => this.handleChange(e, "PokemonName")}
+              />
+            </View>
 
-          <View style={styles.inputContainer}>
-            <Image
-              style={styles.inputIcon}
-              source={require("../assets/Poke_Ball.png")}
+            <View style={styles.inputContainer}>
+              <Image
+                style={styles.inputIcon}
+                source={require("../assets/Poke_Ball.png")}
               />
-            <TextInput
-              style={styles.inputs}
-              placeholder="Type"
-              underlineColorAndroid="transparent"
-              onChangeText={(e) => this.handleChange(e, "PokemonType")}
-            />
-          </View>
-          <View style={styles.inputContainer}>
-            <Image
-              style={styles.inputIcon}
-              source={require("../assets/Poke_Ball.png")}
+              <TextInput
+                style={styles.inputs}
+                placeholder="Type"
+                underlineColorAndroid="transparent"
+                onChangeText={(e) => this.handleChange(e, "PokemonType")}
               />
-            <TextInput
-              style={styles.inputs}
-              placeholder="Ability"
-              underlineColorAndroid="transparent"
-              onChangeText={(e) => this.handleChange(e, "PokemonAbility")}
-            />
-          </View>
+            </View>
+            <View style={styles.inputContainer}>
+              <Image
+                style={styles.inputIcon}
+                source={require("../assets/Poke_Ball.png")}
+              />
+              <TextInput
+                style={styles.inputs}
+                placeholder="Ability"
+                underlineColorAndroid="transparent"
+                onChangeText={(e) => this.handleChange(e, "PokemonAbility")}
+              />
+            </View>
 
-          <TouchableHighlight
-            style={[styles.buttonContainer, styles.sendButton]}
-            onPress={() => this.addPokemon()}
-          >
-            <Text style={styles.buttonText}>Add</Text>
-          </TouchableHighlight>
-        </View>
-      </ScrollView>
+            <TouchableHighlight
+              style={[styles.buttonContainer, styles.sendButton]}
+              onPress={() => this.addPokemon()}
+            >
+              <Text style={styles.buttonText}>Add</Text>
+            </TouchableHighlight>
+          </View>
+        </ScrollView>
+      </View>
     );
   }
 }
@@ -123,19 +153,18 @@ CreatePokemonScreen.navigationOptions = {
 };
 const styles = StyleSheet.create({
   containerView: {
-    backgroundColor: "#DCDCDC",
+    backgroundColor: "#ebf0f7",
   },
   container: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#DCDCDC",
+    backgroundColor: "#ebf0f7",
   },
-  logo: {
-    width: 120,
-    height: 120,
-    justifyContent: "center",
-    marginBottom: 20,
+  containerHeader: {
+    flex: 1,
+    marginTop: 20,
+    backgroundColor: "#ebf0f7",
   },
   inputContainer: {
     borderBottomColor: "#F5FCFF",

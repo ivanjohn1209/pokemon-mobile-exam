@@ -8,15 +8,14 @@ import {
   FlatList,
   Alert,
   ActivityIndicator,
-  AsyncStorage
+  AsyncStorage,
 } from "react-native";
 
 import { connect } from "react-redux";
-import { bindActionCreators } from "redux";
 import { getPokemon } from "../redux/actions";
 import Header from "../component/Header";
 import Footer from "../component/Footer";
-
+import { EvilIcons, AntDesign } from "@expo/vector-icons";
 class PokemonListsScreen extends Component {
   constructor(props) {
     super(props);
@@ -28,62 +27,84 @@ class PokemonListsScreen extends Component {
 
     this.changeScreen = this.changeScreen.bind(this);
     this.deletePokemon = this.deletePokemon.bind(this);
+    this.capitalLetter = this.capitalLetter.bind(this);
+    this.shortName = this.shortName.bind(this);
+  }
+  capitalLetter(e) {
+    const nameCapitalized = e.charAt(0).toUpperCase() + e.slice(1);
+    return nameCapitalized;
+  }
+  shortName(e) {
+    if (e.length > 8) {
+      var shortname = e.substring(0, 8) + " ...";
+      return shortname;
+    } else {
+      return e;
+    }
   }
   deletePokemon(name) {
-    var deletePokemon = this.state.pokemonsData.filter((e) => e.name != name)
+    var deletePokemon = this.state.pokemonsData.filter((e) => e.name != name);
     this.setState({
       pokemonsData: deletePokemon,
     });
-    this.deletePokemonData(deletePokemon)
+    this.deletePokemonData(deletePokemon);
   }
   changeScreen(screen, pokemonsData) {
-    if(pokemonsData.url === false){
-      this.props.navigation.navigate(screen, { pokemondata :pokemonsData , PokemonUrl :pokemonsData.url ,allPokemonsData :this.state.pokemonsData });
-    }else{
-      this.props.navigation.navigate(screen, { url:true ,PokemonUrl :pokemonsData.url, allPokemonsData :this.state.pokemonsData });
+    if (pokemonsData.url === false) {
+      this.props.navigation.navigate(screen, {
+        pokemondata: pokemonsData,
+        PokemonUrl: pokemonsData.url,
+        allPokemonsData: this.state.pokemonsData,
+      });
+    } else {
+      this.props.navigation.navigate(screen, {
+        url: true,
+        PokemonUrl: pokemonsData.url,
+        allPokemonsData: this.state.pokemonsData,
+      });
     }
   }
   async readData() {
     try {
-      const pokemonData = await AsyncStorage.getItem('pokemonData')
+      const pokemonData = await AsyncStorage.getItem("pokemonData");
       if (pokemonData !== null) {
-        let newPokemonData = JSON.parse(pokemonData)
-       this.setState({
-        pokemonsData:newPokemonData
-       })
+        let newPokemonData = JSON.parse(pokemonData);
+        this.setState({
+          pokemonsData: newPokemonData,
+        });
       }
     } catch (e) {
-      alert('Failed to fetch the data from storage')
+      alert("Failed to fetch the data from storage");
     }
   }
   async deletePokemonData(e) {
     try {
-      await AsyncStorage.setItem('pokemonData',JSON.stringify(e));
+      await AsyncStorage.setItem("pokemonData", JSON.stringify(e));
     } catch (error) {
       // Error saving data
     }
     this.props.navigation.navigate("PokemonLists");
-  };
+  }
   componentDidMount() {
     const { navigation } = this.props;
-    navigation.addListener('willFocus', () => {
-      this.readData()
+    navigation.addListener("willFocus", () => {
+      this.readData();
     });
   }
   render() {
     const createTwoButtonAlert = (e) =>
-    Alert.alert(
-      "Delete!",
-      "are you sure you want to delete?",
-      [
-        {
-          text: "Cancel",
-          style: "cancel"
-        },
-        { text: "OK", onPress: () => this.deletePokemon(e) }
-      ],
-      { cancelable: false }
-    );
+      Alert.alert(
+        "Delete!",
+        `you want to delete ${e}?`,
+        [
+          {
+            text: "Cancel",
+            style: "cancel",
+          },
+          { text: "OK", onPress: () => this.deletePokemon(e) },
+        ],
+        { cancelable: false }
+      );
     return this.state.pokemonsData.length === 0 ? (
       <View style={styles.spinner}>
         <ActivityIndicator color="red" size="large" />
@@ -91,54 +112,53 @@ class PokemonListsScreen extends Component {
     ) : (
       <View style={styles.container}>
         <Header />
-          <FlatList
-            style={styles.contentList}
-            columnWrapperStyle={styles.listContainer}
-            data={this.state.pokemonsData}
-            showsVerticalScrollIndicator={false}
-            onEndReached={() => this.props.getPokemon(1123)}
-            onEndReachedThreshold={0.5}
-            keyExtractor={(item) => {
-              return item.id;
-            }}
-            renderItem={({ item }) => {
-              return (
-                <TouchableOpacity
-                  style={styles.card}>
-                  <Image
-                    style={styles.image}
-                    source={require("../assets/Poke_Ball.png")}
-                  />
-                  <View style={styles.cardContent}>
-                    <TouchableOpacity
-                      onPress={() => createTwoButtonAlert(item.name)}
-                    >
-                      <Text>Delete</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      onPress={() =>
-                        this.changeScreen("UpdatePokemon",  item)
-                      }
-                    >
-                      <Text>edit</Text>
-                    </TouchableOpacity>
-                    <Text style={styles.name}>{item.name}</Text>
-                    <Text style={styles.count}>{item.count}</Text>
-                    <TouchableOpacity
-                      style={styles.followButton}
-                      onPress={() =>
-                        this.changeScreen("PokemonDetails", item)
-                      }
-                    >
-                      <Text style={styles.followButtonText}>View</Text>
-                    </TouchableOpacity>
-                  </View>
-                </TouchableOpacity>
-              );
-            }}
-          />
-                  <Footer navigation={this.props.navigation} pokemonData={this.state.pokemonsData}/>
-
+        <FlatList
+          style={styles.contentList}
+          columnWrapperStyle={styles.listContainer}
+          data={this.state.pokemonsData}
+          showsVerticalScrollIndicator={false}
+          onEndReached={() => this.props.getPokemon(this.state.pokemonsData.length + 10)}
+          onEndReachedThreshold={0.5}
+          renderItem={({ item }) => {
+            return (
+              <TouchableOpacity style={styles.card}
+              onPress={() => this.changeScreen("PokemonDetails", item)}>
+                <Image
+                  style={styles.image}
+                  source={require("../assets/Poke_Ball.png")}
+                />
+                <View style={styles.cardContent}>
+                  <Text style={styles.name}>
+                    {this.shortName(this.capitalLetter(item.name))}
+                  </Text>
+                  <TouchableOpacity
+                    style={styles.View}
+                    onPress={() => this.changeScreen("PokemonDetails", item)}
+                  >
+                    <Text style={styles.ViewText}>View</Text>
+                  </TouchableOpacity>
+                </View>
+                <View style={styles.Action}>
+                  <TouchableOpacity
+                    onPress={() => createTwoButtonAlert(item.name)}
+                  >
+                    <EvilIcons name="trash" style={styles.Icon} color="red" />
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() => this.changeScreen("UpdatePokemon", item)}
+                  >
+                    <AntDesign name="edit" style={styles.Icon} color="black" />
+                  </TouchableOpacity>
+                </View>
+              </TouchableOpacity>
+            );
+          }}
+          keyExtractor={(item, index) => index.toString()}
+        />
+        <Footer
+          navigation={this.props.navigation}
+          pokemonData={this.state.pokemonsData}
+        />
       </View>
     );
   }
@@ -147,15 +167,6 @@ PokemonListsScreen.navigationOptions = {
   headerShown: false,
 };
 const styles = StyleSheet.create({
-  LogoImg: {
-    height: 10,
-    width: 10,
-  },
-  header: {
-    marginTop: 10,
-    padding: 20,
-    backgroundColor: "#ef5350",
-  },
   spinner: {
     position: "absolute",
     top: 0,
@@ -184,7 +195,22 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: "#ebf0f7",
   },
-
+  Action: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 70,
+  },
+  Icon: {
+    backgroundColor: "#eee",
+    paddingLeft: 15,
+    paddingRight: 15,
+    paddingBottom: 5,
+    paddingTop: 5,
+    fontSize: 15,
+    borderRadius: 30,
+    marginRight: 5,
+  },
   card: {
     shadowColor: "#00000021",
     shadowOffset: {
@@ -211,13 +237,7 @@ const styles = StyleSheet.create({
     color: "#3399ff",
     fontWeight: "bold",
   },
-  count: {
-    fontSize: 14,
-    flex: 1,
-    alignSelf: "center",
-    color: "#6666ff",
-  },
-  followButton: {
+  View: {
     marginTop: 10,
     height: 35,
     width: 100,
@@ -230,7 +250,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#dcdcdc",
   },
-  followButtonText: {
+  ViewText: {
     color: "#dcdcdc",
     fontSize: 12,
   },

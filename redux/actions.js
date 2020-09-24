@@ -3,7 +3,7 @@ import pokemons from "./reducers/pokemons";
 
 export function getPokemon(count) {   
   return dispatch => {
-    return fetch(`https://pokeapi.co/api/v2/pokemon/?offset=0&limit=${count}`)
+    return fetch(`https://pokeapi.co/api/v2/pokemon/?offset=${count}&limit=1050`)
     .then(response =>  {
       dispatch({
         type: GET_POKEMON,
