@@ -1,5 +1,4 @@
 import { GET_POKEMON } from "./actionTypes";
-import pokemons from "./reducers/pokemons";
 
 export function getPokemon(count) {   
   return dispatch => {
@@ -10,8 +9,6 @@ export function getPokemon(count) {
         payload :response.json()
       })
       return Promise.resolve(response.json())
-      // return response.json()
-
     })
   }
 
